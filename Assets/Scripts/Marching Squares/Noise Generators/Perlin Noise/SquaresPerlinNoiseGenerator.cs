@@ -26,5 +26,7 @@ public class SquaresPerlinNoiseGenerator : SquaresNoiseGenerator
 
             m_marchingSquares.SetWeight(cellX, cellY, noisevalue);
         });
+
+        m_marchingSquares.SetWeight(30, 49, 1f);
     }
 }

@@ -1,5 +1,9 @@
-﻿public class MarchingSquaresData
+﻿using System;
+
+public class MarchingSquaresData
 {
+    public Action OnWeightUpdate;
+
     private int m_gridSizeX, m_gridSizeY;
     private float[,] m_gridWeights;
 
@@ -30,5 +34,7 @@
     public void SetWeight(int cellX, int cellY, float newWeight)
     {
         m_gridWeights[cellX, cellY] = newWeight;
+
+        OnWeightUpdate?.Invoke();
     }
 }
