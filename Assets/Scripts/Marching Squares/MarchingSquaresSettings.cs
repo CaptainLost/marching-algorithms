@@ -8,4 +8,6 @@ public class MarchingSquaresSettings
     public Grid SquaresGrid { get; private set; }
     [field: SerializeField]
     public Vector2Int GridSize { get; private set; }
+    [field: SerializeField]
+    public float IsoLevel { get; private set; }
 }

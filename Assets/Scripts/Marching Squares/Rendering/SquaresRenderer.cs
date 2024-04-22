@@ -7,8 +7,6 @@ public class SquaresRenderer : MonoBehaviour
     [SerializeField]
     private MeshFilter m_meshFilter;
     [SerializeField]
-    private float m_isoLevel;
-    [SerializeField]
     private bool m_applyLerp;
 
     [Inject]
@@ -113,22 +111,24 @@ public class SquaresRenderer : MonoBehaviour
     {
         int index = 0;
 
-        if (weightMap[0, 1] >= m_isoLevel)
+        float isoLevel = m_marchingSquares.Settings.IsoLevel;
+
+        if (weightMap[0, 1] >= isoLevel)
         {
             index |= 1;
         }
 
-        if (weightMap[1, 1] >= m_isoLevel)
+        if (weightMap[1, 1] >= isoLevel)
         {
             index |= 2;
         }
 
-        if (weightMap[1, 0] >= m_isoLevel)
+        if (weightMap[1, 0] >= isoLevel)
         {
             index |= 4;
         }
 
-        if (weightMap[0, 0] >= m_isoLevel)
+        if (weightMap[0, 0] >= isoLevel)
         {
             index |= 8;
         }
@@ -145,7 +145,7 @@ public class SquaresRenderer : MonoBehaviour
 
             float weightA = squareWeights[0, y];
             float weightB = squareWeights[1, y];
-            float distance = (m_isoLevel - weightA) / (weightB - weightA);
+            float distance = (m_marchingSquares.Settings.IsoLevel - weightA) / (weightB - weightA);
 
             verticle.x = Mathf.Lerp(0f, 1f, distance);
         }
@@ -155,7 +155,7 @@ public class SquaresRenderer : MonoBehaviour
 
             float weightA = squareWeights[x, 0];
             float weightB = squareWeights[x, 1];
-            float distance = (m_isoLevel - weightA) / (weightB - weightA);
+            float distance = (m_marchingSquares.Settings.IsoLevel - weightA) / (weightB - weightA);
 
             verticle.y = Mathf.Lerp(0f, 1f, distance);
         }
