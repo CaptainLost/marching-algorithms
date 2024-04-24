@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Zenject;
 
-public class SquaresPerlinNoiseGenerator : SquaresNoiseGenerator
+public class SquaresPerlinNoiseGenerator : ISquaresNoiseGenerator
 {
     [Inject]
     private MarchingSquares m_marchingSquares;
@@ -13,12 +13,17 @@ public class SquaresPerlinNoiseGenerator : SquaresNoiseGenerator
         m_settings = settings;
     }
 
-    public override void Initialize()
+    public void Initialize()
     {
         Generate();
     }
 
-    public override void Generate()
+    public void Tick()
+    {
+        
+    }
+
+    public void Generate()
     {
         m_marchingSquares.LoopThroughtAllCells((cellX, cellY) =>
         {

@@ -37,4 +37,9 @@ public class MarchingSquaresData
 
         OnWeightUpdate?.Invoke();
     }
+
+    public void ClearWeights()
+    {
+        Array.Clear(m_gridWeights, 0, m_gridWeights.Length);
+    }
 }

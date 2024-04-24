@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a6c56585f95c74db10192795c5b419, type: 3}
   m_Name: Perlin Noise Installer
   m_EditorClassIdentifier: 
-  <NoiseSettings>k__BackingField:
+  <PerlinNoiseSettings>k__BackingField:
     <NoiseScale>k__BackingField: 0.1
-    <NoiseThreshold>k__BackingField: 0.5

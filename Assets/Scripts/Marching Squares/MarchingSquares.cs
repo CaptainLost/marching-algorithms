@@ -71,9 +71,11 @@ public class MarchingSquares : ITickable
 
                 if (!IsValidCell(positionX, positionY))
                 {
-                    squareWeights[xOffset, yOffset] = GetWeight(cellX, cellY);
+                    //squareWeights[xOffset, yOffset] = GetWeight(cellX, cellY);
 
-                    continue;
+                    //continue;
+
+                    return null;
                 }
 
                 float weight = GetWeight(positionX, positionY);

@@ -2,16 +2,16 @@ using UnityEngine;
 using Zenject;
 
 [CreateAssetMenu(fileName = "Perlin Noise Installer", menuName = "CptLost/Installers/Perlin Noise")]
-public class SquaresPerlinNoiseInstallerSO : ScriptableObjectInstaller<SquaresPerlinNoiseInstallerSO>
+public class SquaresPerlinNoiseInstallerSO : ScriptableObjectInstaller
 {
     [field: SerializeField]
-    public SquaresPerlinNoiseSettings NoiseSettings { get; private set; }
+    public SquaresPerlinNoiseSettings PerlinNoiseSettings { get; private set; }
 
     public override void InstallBindings()
     {
-        Container.Bind(typeof(IInitializable), typeof(SquaresNoiseGenerator))
+        Container.Bind(typeof(IInitializable), typeof(ITickable), typeof(ISquaresNoiseGenerator))
             .To<SquaresPerlinNoiseGenerator>()
             .AsSingle()
-            .WithArguments(NoiseSettings);
+            .WithArguments(PerlinNoiseSettings);
     }
 }

@@ -52,6 +52,9 @@ public class SquaresRenderer : MonoBehaviour
             {
                 float[,] squareWeights = m_marchingSquares.GetWeightsOfSquareVerticles(cellX, cellY);
 
+                if (squareWeights == null)
+                    return;
+
                 int squareIndex = m_marchingSquares.CalculateSquareIndex(squareWeights);
 
                 if (squareIndex == 0)
