@@ -8,34 +8,11 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.3BE40471" = ""
-	"OpenInspectorPreview.3BE40471" = "0"
-	"currentGroup.3BE40471" = "scene"
 }
 providers = {
-	packages = {
-		active = true
-		priority = 90
-		defaultAction = null
-	}
-	profilermarkers = {
+	adb = {
 		active = false
-		priority = 100
-		defaultAction = null
-	}
-	store = {
-		active = true
-		priority = 100
-		defaultAction = null
-	}
-	log = {
-		active = false
-		priority = 210
-		defaultAction = null
-	}
-	scene = {
-		active = true
-		priority = 50
+		priority = 2500
 		defaultAction = null
 	}
 	find = {
@@ -43,19 +20,39 @@ providers = {
 		priority = 25
 		defaultAction = null
 	}
-	performance = {
-		active = false
+	store = {
+		active = true
 		priority = 100
 		defaultAction = null
 	}
-	adb = {
+	packages = {
+		active = true
+		priority = 90
+		defaultAction = null
+	}
+	log = {
 		active = false
-		priority = 2500
+		priority = 210
 		defaultAction = null
 	}
 	asset = {
 		active = true
 		priority = 25
+		defaultAction = null
+	}
+	profilermarkers = {
+		active = false
+		priority = 100
+		defaultAction = null
+	}
+	performance = {
+		active = false
+		priority = 100
+		defaultAction = null
+	}
+	scene = {
+		active = true
+		priority = 50
 		defaultAction = null
 	}
 }

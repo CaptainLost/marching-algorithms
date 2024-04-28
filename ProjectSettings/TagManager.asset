@@ -41,3 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Grid
+    uniqueID: 875054233
+    locked: 0
+  - name: Grid Content
+    uniqueID: 2417435313
+    locked: 0
+  - name: Grid Overlay
+    uniqueID: 4194497779
+    locked: 0
