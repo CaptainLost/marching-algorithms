@@ -25,6 +25,8 @@ public class MetaballsDisplayController : BaseSquaresDisplay
 
         m_metaballsNoise.BallSimulation.OnBallAdded += OnBallAdded;
         m_metaballsNoise.BallSimulation.OnBallRemoved += OnBallRemoved;
+
+        UpdateBallDisplays();
     }
 
     protected override void OnDisable()
