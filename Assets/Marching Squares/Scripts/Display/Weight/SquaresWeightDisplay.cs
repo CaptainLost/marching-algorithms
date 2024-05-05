@@ -1,62 +1,25 @@
 using CptLost.ObjectPool;
-using System.Collections;
 using UnityEngine;
-using Zenject;
 
-public class SquaresWeightDisplay : MonoBehaviour
+public class SquaresWeightDisplay : BaseSquaresDisplay
 {
     [SerializeField]
     private SquaresWeightText m_textDisplayTemplate;
     [SerializeField]
     private Gradient m_weightColor;
 
-    [Inject]
-    private MarchingSquares m_marchingSquares;
-
     private ComponentPool<SquaresWeightText> m_textPool;
-    private Coroutine m_refreshCoroutine;
 
     private void Start()
     {
         m_textPool = new ComponentPool<SquaresWeightText>(m_textDisplayTemplate, transform);
     }
 
-    private void OnEnable()
-    {
-        m_marchingSquares.Data.OnWeightUpdate += OnWeightUpdate;
-    }
-
-    private void OnDisable()
-    {
-        m_marchingSquares.Data.OnWeightUpdate -= OnWeightUpdate;
-    }
-
-    public void Generate()
+    public override void Generate()
     {
         m_textPool.Reset();
 
         m_marchingSquares.LoopThroughtAllCells(CreateTextForCell);
-    }
-
-    public void Regenerate()
-    {
-        if (m_refreshCoroutine != null)
-            return;
-
-        m_refreshCoroutine = StartCoroutine(RegenerateAtEndOfFrame());
-    }
-
-    private void OnWeightUpdate()
-    {
-        Regenerate();
-    }
-
-    private IEnumerator RegenerateAtEndOfFrame()
-    {
-        yield return new WaitForEndOfFrame();
-
-        Generate();
-        m_refreshCoroutine = null;
     }
 
     private void CreateTextForCell(int cellX, int cellY)

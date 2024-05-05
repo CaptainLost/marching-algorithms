@@ -17,7 +17,7 @@ public class SquaresGrid : MonoBehaviour
     {
         transform.position = m_marchingSquares.CalculateGridCenter();
 
-        Vector2 simulationSize = m_marchingSquares.CalculateSimulationSize();
+        Vector2 simulationSize = m_marchingSquares.SimulationSize;
         transform.localScale = new Vector3(simulationSize.x, simulationSize.y, 1f);
 
         m_spriteRenderer.material.SetVector("_AmountOfCells", (Vector2)m_marchingSquares.Settings.AmountOfCells - Vector2.one);

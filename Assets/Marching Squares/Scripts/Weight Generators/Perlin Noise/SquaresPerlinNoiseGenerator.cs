@@ -8,6 +8,8 @@ public class SquaresPerlinNoiseGenerator : ISquaresWeightGenerator
 
     private SquaresPerlinNoiseSettings m_settings;
 
+    private float m_xOffset = 0f;
+
     public SquaresPerlinNoiseGenerator(SquaresPerlinNoiseSettings settings)
     {
         m_settings = settings;
@@ -20,7 +22,9 @@ public class SquaresPerlinNoiseGenerator : ISquaresWeightGenerator
 
     public void Tick()
     {
-        
+        m_xOffset += Time.deltaTime;
+
+        Generate();
     }
 
     public void Generate()
@@ -29,7 +33,7 @@ public class SquaresPerlinNoiseGenerator : ISquaresWeightGenerator
         {
             for (int y = 0; y < m_marchingSquares.Settings.AmountOfCells.y; y++)
             {
-                float noisevalue = Mathf.PerlinNoise(x * m_settings.NoiseScale, y * m_settings.NoiseScale);
+                float noisevalue = Mathf.PerlinNoise(x * m_settings.NoiseScale + m_xOffset, y * m_settings.NoiseScale);
 
                 m_marchingSquares.Data.SetWeight(x, y, noisevalue);
             }

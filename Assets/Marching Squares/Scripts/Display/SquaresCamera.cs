@@ -18,7 +18,7 @@ public class SquaresCamera : MonoBehaviour
 
     private void Start()
     {
-        Vector2 simulationSize = m_marchingSquares.CalculateSimulationSize() + new Vector2(m_oversize, m_oversize);
+        Vector2 simulationSize = m_marchingSquares.SimulationSize + new Vector2(m_oversize, m_oversize);
 
         float ortoHeight = simulationSize.y * 0.5f;
         float ortoWidth = (simulationSize.x / m_camera.aspect) * 0.5f;

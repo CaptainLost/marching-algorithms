@@ -1,47 +1,20 @@
 using System;
 using UnityEngine;
 
-public class MarchingSquaresData
-{
-    public Action OnWeightUpdate;
-
-    private float[,] m_cellWeights;
-
-    public MarchingSquaresData(int gridSizeX, int gridSizeY)
-    {
-        m_cellWeights = new float[gridSizeX, gridSizeY];
-    }
-
-    public float GetWeight(int cellX, int cellY)
-    {
-        return m_cellWeights[cellX, cellY];
-    }
-
-    public void SetWeight(int cellX, int cellY, float newWeight)
-    {
-        m_cellWeights[cellX, cellY] = newWeight;
-
-        OnWeightUpdate?.Invoke();
-    }
-
-    public void ClearWeights()
-    {
-        Array.Clear(m_cellWeights, 0, m_cellWeights.Length);
-
-        OnWeightUpdate?.Invoke();
-    }
-}
-
 public class MarchingSquares
 {
     public MarchingSquaresSettings Settings { get; private set; }
     public MarchingSquaresData Data { get; private set; }
+
+    public Vector2 SimulationSize { get; private set; }
 
     public MarchingSquares(MarchingSquaresSettings settings)
     {
         Settings = settings;
 
         Data = new MarchingSquaresData(Settings.AmountOfCells.x, Settings.AmountOfCells.y);
+
+        SimulationSize = CalculateSimulationSize();
     }
 
     public bool IsValidCell(int cellX, int cellY)
@@ -64,7 +37,7 @@ public class MarchingSquares
 
     public Vector3 CalculateGridCenter()
     {
-        return CalculateSimulationSize() * 0.5f;
+        return SimulationSize * 0.5f;
     }
 
     public Vector3 CalculateCellWorldPosition(int cellX, int cellY)

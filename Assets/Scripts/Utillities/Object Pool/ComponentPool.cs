@@ -7,6 +7,7 @@ namespace CptLost.ObjectPool
     public class ComponentPool<T> where T : Component
     {
         public HashSet<T> Pool { get; private set; } = new HashSet<T>();
+        public Queue<T> Queue { get; private set; } = new Queue<T>();
 
         private T m_templateObject;
         private Transform m_objectParent;
@@ -21,7 +22,7 @@ namespace CptLost.ObjectPool
         {
             obj.gameObject.SetActive(false);
 
-            Pool.Add(obj);
+            Queue.Enqueue(obj);
         }
 
         public void Reset()
@@ -34,9 +35,10 @@ namespace CptLost.ObjectPool
 
         public T DequeueObject()
         {
-            T obj = Pool.FirstOrDefault(obj => !obj.gameObject.activeInHierarchy);
+            //T obj = Pool.FirstOrDefault(obj => !obj.gameObject.activeInHierarchy);
+            T obj;
 
-            if (obj == null)
+            if (!Queue.TryDequeue(out obj))
             {
                 obj = EnqueNewInstance();
             }

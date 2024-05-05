@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed655799807768479e348305bb11a45, type: 3}
+  m_Name: Metaballs Noise Installer
+  m_EditorClassIdentifier: 
+  m_metaballsNoiseSettings:
+    <AmountOfBalls>k__BackingField: 10
+    <VelocityXRange>k__BackingField: {x: -6, y: 6}
+    <VelocityYRange>k__BackingField: {x: -6, y: 6}
+    <RadiusRange>k__BackingField: {x: 1, y: 3}

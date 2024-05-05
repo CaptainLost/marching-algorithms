@@ -1,91 +1,106 @@
 using CptLost.ObjectPool;
-using System.Collections;
 using UnityEngine;
-using Zenject;
 
-public class SquaresLineDisplay : MonoBehaviour
+public class SquaresLineDisplay : BaseSquaresDisplay
 {
+    public struct SquareLineData
+    {
+        public static readonly int s_LineBufferSize = sizeof(float) * 2 * 4;
+
+        public Vector2 PositionA;
+        public Vector2 PositionB;
+        public Vector2 PositionC;
+        public Vector2 PositionD;
+    }
+
+    [SerializeField]
+    private ComputeShader m_calculationShader;
     [SerializeField]
     private LineRenderer m_lineRendererTemplate;
 
-    [Inject]
-    private MarchingSquares m_marchingSquares;
-
     private ComponentPool<LineRenderer> m_linePool;
-    private Coroutine m_refreshCoroutine;
-    private float[,] m_squareWeightsCache;
+    private SquareLineData[] m_lineData;
+
+    private ComputeBuffer m_lineDataBuffer;
+    private ComputeBuffer m_cellWeightsBuffer;
 
     private void Start()
     {
+        m_lineData = new SquareLineData[m_marchingSquares.Settings.AmountOfCells.x * m_marchingSquares.Settings.AmountOfCells.y];
         m_linePool = new ComponentPool<LineRenderer>(m_lineRendererTemplate, transform);
 
-        m_squareWeightsCache = new float[2, 2];
+        CreateBuffers();
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
-        m_marchingSquares.Data.OnWeightUpdate += OnWeightUpdate;
+        ReleaseBuffers();
     }
 
-    private void OnDisable()
-    {
-        m_marchingSquares.Data.OnWeightUpdate -= OnWeightUpdate;
-    }
-
-    public void Generate()
+    public override void Generate()
     {
         m_linePool.Reset();
 
-        m_marchingSquares.LoopThroughtAllCells(RenderLineForText);
+        m_cellWeightsBuffer.SetData(m_marchingSquares.Data.CellWeights);
+
+        m_calculationShader.SetBuffer(0, "LinesData", m_lineDataBuffer);
+        m_calculationShader.SetBuffer(0, "CellWeightData", m_cellWeightsBuffer);
+
+        m_calculationShader.SetInts("CellAmount", m_marchingSquares.Settings.AmountOfCells.x, m_marchingSquares.Settings.AmountOfCells.y);
+        m_calculationShader.SetFloat("IsoLevel", m_marchingSquares.Settings.IsoLevel);
+
+        m_calculationShader.Dispatch(0, m_lineData.Length, 1, 1);
+
+        m_lineDataBuffer.GetData(m_lineData);
+
+        CreateLines();
     }
 
-    public void Regenerate()
+    private void CreateLines()
     {
-        if (m_refreshCoroutine != null)
-            return;
-
-        m_refreshCoroutine = StartCoroutine(RegenerateAtEndOfFrame());
-    }
-
-    private void OnWeightUpdate()
-    {
-        Regenerate();
-    }
-
-    private IEnumerator RegenerateAtEndOfFrame()
-    {
-        yield return new WaitForEndOfFrame();
-
-        Generate();
-        m_refreshCoroutine = null;
-    }
-
-    private void RenderLineForText(int cellX, int cellY)
-    {
-        if (!m_marchingSquares.GetWeightsOfSquare(cellX, cellY, m_squareWeightsCache))
-            return;
-
-        LineRenderer lineRenderer = m_linePool.DequeueObject();
-        lineRenderer.positionCount = 2;
-
-        int squareIndex = m_marchingSquares.CalculateSquareIndex(m_squareWeightsCache);
-        lineRenderer.name = squareIndex.ToString();
-
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < m_lineData.Length; i++)
         {
-            int lineA = MarchingSquaresLookupTable.LineConnections[squareIndex, 2 * i];
-            int lineB = MarchingSquaresLookupTable.LineConnections[squareIndex, 2 * i + 1];
+            SquareLineData lineData = m_lineData[i];
 
-            if (lineA == MarchingSquaresLookupTable.InvalidIndex || lineB == MarchingSquaresLookupTable.InvalidIndex)
-                return;
+            int cellX, cellY;
 
-            Vector3 vertA = MarchingSquaresLookupTable.SquareVerticles[lineA];
-            Vector3 vertB = MarchingSquaresLookupTable.SquareVerticles[lineB];
+            SquaresGridMetrics.CalculateCellPos(i,
+                m_marchingSquares.Settings.AmountOfCells.x, m_marchingSquares.Settings.AmountOfCells.y,
+                out cellX, out cellY);
 
-            Vector3 cellWorld = m_marchingSquares.CalculateCellWorldPosition(cellX, cellY);
+            if (lineData.PositionA.x != -1f)
+            {
+                LineRenderer lineRenderer = m_linePool.DequeueObject();
+                lineRenderer.positionCount = 2;
 
-            lineRenderer.SetPosition(0, vertA + cellWorld);
-            lineRenderer.SetPosition(1, vertB + cellWorld);
+                Vector3 cellWorld = m_marchingSquares.CalculateCellWorldPosition(cellX, cellY);
+
+                lineRenderer.SetPosition(0, cellWorld + (Vector3)lineData.PositionA);
+                lineRenderer.SetPosition(1, cellWorld + (Vector3)lineData.PositionB);
+            }
+
+            if (lineData.PositionC.x != -1f)
+            {
+                LineRenderer lineRenderer = m_linePool.DequeueObject();
+                lineRenderer.positionCount = 2;
+
+                Vector3 cellWorld = m_marchingSquares.CalculateCellWorldPosition(cellX, cellY);
+
+                lineRenderer.SetPosition(0, cellWorld + (Vector3)lineData.PositionC);
+                lineRenderer.SetPosition(1, cellWorld + (Vector3)lineData.PositionD);
+            }
         }
+    }
+
+    private void CreateBuffers()
+    {
+        m_lineDataBuffer = new ComputeBuffer(m_lineData.Length, SquareLineData.s_LineBufferSize);
+        m_cellWeightsBuffer = new ComputeBuffer(m_marchingSquares.Data.CellWeights.Length, sizeof(float));
+    }
+
+    private void ReleaseBuffers()
+    {
+        m_lineDataBuffer.Release();
+        m_cellWeightsBuffer.Release();
     }
 }
