@@ -17,6 +17,10 @@ public class SquaresLineDisplay : BaseSquaresDisplay
     private ComputeShader m_calculationShader;
     [SerializeField]
     private LineRenderer m_lineRendererTemplate;
+    [SerializeField]
+    private Gradient m_horizontalColor;
+    [SerializeField]
+    private bool m_applyInterpolation;
 
     private ComponentPool<LineRenderer> m_linePool;
     private SquareLineData[] m_lineData;
@@ -48,6 +52,7 @@ public class SquaresLineDisplay : BaseSquaresDisplay
 
         m_calculationShader.SetInts("CellAmount", m_marchingSquares.Settings.AmountOfCells.x, m_marchingSquares.Settings.AmountOfCells.y);
         m_calculationShader.SetFloat("IsoLevel", m_marchingSquares.Settings.IsoLevel);
+        m_calculationShader.SetBool("HasInterpolation", m_applyInterpolation);
 
         m_calculationShader.Dispatch(0, m_lineData.Length, 1, 1);
 
@@ -75,8 +80,14 @@ public class SquaresLineDisplay : BaseSquaresDisplay
 
                 Vector3 cellWorld = m_marchingSquares.CalculateCellWorldPosition(cellX, cellY);
 
-                lineRenderer.SetPosition(0, cellWorld + (Vector3)lineData.PositionA);
-                lineRenderer.SetPosition(1, cellWorld + (Vector3)lineData.PositionB);
+                Vector3 positionA = cellWorld + (Vector3)lineData.PositionA;
+                Vector3 positionB = cellWorld + (Vector3)lineData.PositionB;
+
+                lineRenderer.SetPosition(0, positionA);
+                lineRenderer.SetPosition(1, positionB);
+
+                lineRenderer.startColor = CalculateLineColor(positionA);
+                lineRenderer.endColor = CalculateLineColor(positionB);
             }
 
             if (lineData.PositionC.x != -1f)
@@ -86,10 +97,25 @@ public class SquaresLineDisplay : BaseSquaresDisplay
 
                 Vector3 cellWorld = m_marchingSquares.CalculateCellWorldPosition(cellX, cellY);
 
-                lineRenderer.SetPosition(0, cellWorld + (Vector3)lineData.PositionC);
-                lineRenderer.SetPosition(1, cellWorld + (Vector3)lineData.PositionD);
+                Vector3 positionA = cellWorld + (Vector3)lineData.PositionC;
+                Vector3 positionB = cellWorld + (Vector3)lineData.PositionD;
+
+                lineRenderer.SetPosition(0, positionA);
+                lineRenderer.SetPosition(1, positionB);
+
+                lineRenderer.startColor = CalculateLineColor(positionA);
+                lineRenderer.endColor = CalculateLineColor(positionB);
             }
         }
+    }
+
+    private Color CalculateLineColor(Vector3 position)
+    {
+        float xMidPoint = position.x / m_marchingSquares.SimulationSize.x;
+
+        Color xColor = m_horizontalColor.Evaluate(xMidPoint);
+
+        return xColor;
     }
 
     private void CreateBuffers()

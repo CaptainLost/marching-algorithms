@@ -12,37 +12,66 @@ RWStructuredBuffer<float> CellWeightData;
 
 int2 CellAmount;
 float IsoLevel;
+bool HasInterpolation;
 
 int CalculateIndex(int cellX, int cellY)
 {
     return cellX + (cellY * CellAmount.x);
 }
 
-int CalculateSquareType(int cellX, int cellY)
+int CalculateSquareType(float squareWeights[4])
 {
     int index = 0;
 
-    if (CellWeightData[CalculateIndex(cellX, cellY + 1)] >= IsoLevel)
+    if (squareWeights[1] >= IsoLevel)
     {
         index |= 1;
     }
 
-    if (CellWeightData[CalculateIndex(cellX + 1, cellY + 1)] >= IsoLevel)
+    if (squareWeights[3] >= IsoLevel)
     {
         index |= 2;
     }
 
-    if (CellWeightData[CalculateIndex(cellX + 1, cellY)] >= IsoLevel)
+    if (squareWeights[2] >= IsoLevel)
     {
         index |= 4;
     }
 
-    if (CellWeightData[CalculateIndex(cellX, cellY)] >= IsoLevel)
+    if (squareWeights[0] >= IsoLevel)
     {
         index |= 8;
     }
     
     return index;
+}
+
+float2 ApplyInterpolation(float2 verticle, int cellX, int cellY)
+{
+    if (verticle.x == 0.5f)
+    {
+        int y = (int)verticle.y;
+        
+        float weightA = CellWeightData[CalculateIndex(cellX, cellY + y)];
+        float weightB = CellWeightData[CalculateIndex(cellX + 1, cellY + y)];
+
+        float distance = (IsoLevel - weightA) / (weightB - weightA);
+        
+        verticle.x = lerp(0, 1, distance);
+    }
+    else if (verticle.y == 0.5f)
+    {
+        int x = (int)verticle.x;
+        
+        float weightA = CellWeightData[CalculateIndex(cellX + x, cellY)];
+        float weightB = CellWeightData[CalculateIndex(cellX + x, cellY + 1)];
+
+        float distance = (IsoLevel - weightA) / (weightB - weightA);
+        
+        verticle.y = lerp(0, 1, distance);
+    }
+    
+    return verticle;
 }
 
 [numthreads(8, 1, 1)]
@@ -54,7 +83,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     if (cellX >= CellAmount.x - 1 || cellY >= CellAmount.y - 1)
         return;
     
-    int squareIndex = CalculateSquareType(cellX, cellY);
+    float squareWeights[4] =
+    {
+        CellWeightData[CalculateIndex(cellX, cellY)],
+        CellWeightData[CalculateIndex(cellX, cellY + 1)],
+        CellWeightData[CalculateIndex(cellX + 1, cellY)],
+        CellWeightData[CalculateIndex(cellX + 1, cellY + 1)]
+    };
+    
+    int squareIndex = CalculateSquareType(squareWeights);
     
     for (int i = 0; i < 2; i++)
     {
@@ -73,6 +110,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         {
             float2 vertA = SquaresLookupTable::SquareVerticles[lineA];
             float2 vertB = SquaresLookupTable::SquareVerticles[lineB];
+            
+            if (HasInterpolation)
+            {
+                vertA = ApplyInterpolation(vertA, cellX, cellY);
+                vertB = ApplyInterpolation(vertB, cellX, cellY);
+            }
             
             LinesData[id.x].Position[indexA] = vertA;
             LinesData[id.x].Position[indexB] = vertB;

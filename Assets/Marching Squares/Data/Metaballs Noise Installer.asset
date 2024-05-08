@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_metaballsNoiseSettings:
     <AmountOfBalls>k__BackingField: 10
-    <VelocityXRange>k__BackingField: {x: -6, y: 6}
-    <VelocityYRange>k__BackingField: {x: -6, y: 6}
-    <RadiusRange>k__BackingField: {x: 1, y: 3}
+    <VelocityXRange>k__BackingField: {x: -4, y: 4}
+    <VelocityYRange>k__BackingField: {x: -4, y: 4}
+    <RadiusRange>k__BackingField: {x: 1, y: 2}
