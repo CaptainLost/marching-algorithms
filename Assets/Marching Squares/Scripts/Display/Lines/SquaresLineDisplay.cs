@@ -54,7 +54,7 @@ public class SquaresLineDisplay : BaseSquaresDisplay
         m_calculationShader.SetFloat("IsoLevel", m_marchingSquares.Settings.IsoLevel);
         m_calculationShader.SetBool("HasInterpolation", m_applyInterpolation);
 
-        m_calculationShader.Dispatch(0, m_lineData.Length, 1, 1);
+        m_calculationShader.Dispatch(0, m_marchingSquares.Settings.AmountOfCells.x, m_marchingSquares.Settings.AmountOfCells.y, 1);
 
         m_lineDataBuffer.GetData(m_lineData);
 

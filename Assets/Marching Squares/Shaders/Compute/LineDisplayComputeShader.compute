@@ -74,18 +74,20 @@ float2 ApplyInterpolation(float2 verticle, int cellX, int cellY)
     return verticle;
 }
 
-[numthreads(8, 1, 1)]
+[numthreads(8, 8, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    int cellX = id.x % CellAmount.x;
-    int cellY = id.x / CellAmount.x;
+    int cellX = id.x;
+    int cellY = id.y;
+    
+    int arrayIndex = CalculateIndex(cellX, cellY);
     
     if (cellX >= CellAmount.x - 1 || cellY >= CellAmount.y - 1)
         return;
     
     float squareWeights[4] =
     {
-        CellWeightData[CalculateIndex(cellX, cellY)],
+        CellWeightData[arrayIndex],
         CellWeightData[CalculateIndex(cellX, cellY + 1)],
         CellWeightData[CalculateIndex(cellX + 1, cellY)],
         CellWeightData[CalculateIndex(cellX + 1, cellY + 1)]
@@ -103,8 +105,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         
         if (lineB == SquaresLookupTable::InvalidIndex || lineB == SquaresLookupTable::InvalidIndex)
         {
-            LinesData[id.x].Position[indexA] = float2(-1, -1);
-            LinesData[id.x].Position[indexB] = float2(-1, -1);
+            LinesData[arrayIndex].Position[indexA] = float2(-1, -1);
+            LinesData[arrayIndex].Position[indexB] = float2(-1, -1);
         }
         else
         {
@@ -117,8 +119,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
                 vertB = ApplyInterpolation(vertB, cellX, cellY);
             }
             
-            LinesData[id.x].Position[indexA] = vertA;
-            LinesData[id.x].Position[indexB] = vertB;
+            LinesData[arrayIndex].Position[indexA] = vertA;
+            LinesData[arrayIndex].Position[indexB] = vertB;
         }
     }
 }
