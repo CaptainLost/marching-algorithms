@@ -1,0 +1,11 @@
+#pragma kernel CSMain
+
+RWStructuredBuffer<float> Weights;
+
+int3 ChunkSize;
+
+[numthreads(8, 8, 8)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+
+}

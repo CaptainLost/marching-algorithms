@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Image Noise Installer
   m_EditorClassIdentifier: 
   m_imageNoiseSettings:
-    <NoiseTexture>k__BackingField: {fileID: 2800000, guid: 5bca70d75a2d2d246aca1ea8e12e87e8,
+    <NoiseTexture>k__BackingField: {fileID: 2800000, guid: a3bf8cfdf4bc4a74ab54c8d213ed33cb,
       type: 3}
