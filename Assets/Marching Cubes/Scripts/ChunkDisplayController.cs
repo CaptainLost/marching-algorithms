@@ -1,20 +1,15 @@
-using CptLost.ObjectPool;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
 public class ChunkDisplayController : MonoBehaviour
 {
-    [SerializeField]
-    private ChunkDisplay m_chunkRendererTemplate;
-
     [Inject]
     private ChunkedMarchingCubes m_marchingCubes;
-    private ComponentPool<ChunkDisplay> m_rendererPool;
+    [Inject]
+    private ChunkFacade.Factory m_chunkFactory;
 
-    private void Awake()
-    {
-        m_rendererPool = new ComponentPool<ChunkDisplay>(m_chunkRendererTemplate, transform);
-    }
+    private Dictionary<ChunkData, ChunkFacade> m_chunkDataBind = new();
 
     private void OnEnable()
     {
@@ -30,14 +25,20 @@ public class ChunkDisplayController : MonoBehaviour
 
     private void OnChunkAdded(ChunkData chunkData)
     {
-        ChunkDisplay chunkRenderer = m_rendererPool.DequeueObject();
-        chunkRenderer.SetData(chunkData);
+        if (m_chunkDataBind.ContainsKey(chunkData))
+            return;
 
-        chunkRenderer.transform.position = chunkData.ChunkIndex * chunkData.ChunkSize;
+        ChunkFacade createdChunk = m_chunkFactory.Create(chunkData);
+        createdChunk.name = chunkData.ChunkIndex.ToString();
+
+        m_chunkDataBind.Add(chunkData, createdChunk);
     }
 
     private void OnChunkRemoved(ChunkData chunkData)
     {
-
+        if (m_chunkDataBind.TryGetValue(chunkData, out ChunkFacade chunk))
+        {
+            chunk.Dispose();
+        }
     }
 }

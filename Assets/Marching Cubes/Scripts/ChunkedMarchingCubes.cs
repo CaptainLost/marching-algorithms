@@ -10,7 +10,14 @@ public interface INoiseGenerator
 
 public class PerlinNoiseGenerator : INoiseGenerator
 {
-    public float[] Generate(Vector3Int startPosition, Vector3Int cellToGenerate)
+    private int m_totalGridHeight;
+
+    public PerlinNoiseGenerator(int totalGridHeight)
+    {
+        m_totalGridHeight = totalGridHeight;
+    }
+
+    public float[] Generate(Vector3Int startCellWorldIndex, Vector3Int cellToGenerate)
     {
         float[] generatedNoise = new float[cellToGenerate.x * cellToGenerate.y * cellToGenerate.z];
 
@@ -18,15 +25,16 @@ public class PerlinNoiseGenerator : INoiseGenerator
         {
             for (int z = 0; z < cellToGenerate.z; z++)
             {
-                float noiseValue = Mathf.PerlinNoise(x * 0.05f, z * 0.05f);
-
-                //int groundPosition = Mathf.RoundToInt(noiseValue * chunkHeight);
+                float noiseValue = Mathf.PerlinNoise((startCellWorldIndex.x + x) * 0.05f, (startCellWorldIndex.z + z) * 0.05f);
+                int groundPosition = Mathf.RoundToInt(noiseValue * m_totalGridHeight);
 
                 for (int y = 0; y < cellToGenerate.y; y++)
                 {
+                    int worldY = startCellWorldIndex.y + y;
+
                     int index = CubesGridMetrics.CalculateIndex(x, y, z, cellToGenerate.x, cellToGenerate.y);
 
-                    generatedNoise[index] = noiseValue;
+                    generatedNoise[index] = worldY >= groundPosition ? 0f : 1f;
                 }
             }
         }
@@ -42,6 +50,8 @@ public class ChunkData
     public ChunkStorage OwningStorage {  get; private set; }
 
     public float[] NoiseWeights { get; private set; }
+
+    public Vector3Int WorldPosition => ChunkIndex * ChunkSize;
 
     public ChunkData(Vector3Int chunkIndex, Vector3Int chunkSize, ChunkStorage owningStorage)
     {
@@ -171,27 +181,34 @@ public class ChunkStorage
 
         return true;
     }
+
+    public bool TryGetWeightFromWorldCell(int worldCellX, int worldCellY, int worldCellZ, out float weight)
+    {
+        return TryGetWeightFromWorldCell(new Vector3Int(worldCellX, worldCellY, worldCellZ), out weight);
+    }
 }
 
 public class ChunkedMarchingCubes : IMarchingCubes, IInitializable
 {
-    public MarchingCubesSettings Settings { get; private set; }
     public ChunkStorage ChunkStorage { get; private set; }
 
+    private MarchingCubesSettings m_settings;
+
+    [Inject]
     public ChunkedMarchingCubes(MarchingCubesSettings settings)
     {
-        Settings = settings;
+        m_settings = settings;
 
-        ChunkStorage = new ChunkStorage(settings.ChunkSize, new PerlinNoiseGenerator()); // TODO: Move noise gen to settings
+        ChunkStorage = new ChunkStorage(m_settings.ChunkSize, new PerlinNoiseGenerator(m_settings.WorldSize.y * m_settings.ChunkSize.y)); // TODO: Move noise gen to settings
     }
 
     public void Initialize()
     {
-        for (int x = 0; x < Settings.InitialAmountOfChunks.x; x++)
+        for (int x = 0; x < m_settings.WorldSize.x; x++)
         {
-            for (int y = 0; y < Settings.InitialAmountOfChunks.y; y++)
+            for (int y = 0; y < m_settings.WorldSize.y; y++)
             {
-                for (int z = 0; z < Settings.InitialAmountOfChunks.z; z++)
+                for (int z = 0; z < m_settings.WorldSize.z; z++)
                 {
                     Vector3Int chunkPosition = new Vector3Int(x, y, z);
 

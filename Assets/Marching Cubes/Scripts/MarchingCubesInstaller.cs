@@ -7,7 +7,7 @@ using Zenject;
 [Serializable]
 public class MarchingCubesSettings
 {
-    public Vector3Int InitialAmountOfChunks;
+    public Vector3Int WorldSize;
     public Vector3Int ChunkSize;
 }
 
@@ -18,9 +18,12 @@ public class MarchingCubesInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        Container.Bind<MarchingCubesSettings>()
+            .FromInstance(m_settings)
+            .AsSingle();
+
         Container.Bind(typeof(ChunkedMarchingCubes), typeof(IInitializable))
             .To<ChunkedMarchingCubes>()
-            .AsSingle()
-            .WithArguments(m_settings);
+            .AsSingle();
     }
 }
