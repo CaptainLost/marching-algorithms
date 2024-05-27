@@ -1,25 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class ChunkDisplay : MonoBehaviour
 {
+    [Inject]
+    private ChunkFacade m_chunkFacade;
+    public ChunkData ChunkData { get { return m_chunkFacade.ChunkData; } }
+
     [SerializeField]
-    private ComputeShader m_chunkDisplayShader;
-
-    public ChunkData ChunkData { get; private set; }
-
     private MeshFilter m_meshFilter;
-
-    private void Awake()
-    {
-        m_meshFilter = GetComponent<MeshFilter>();
-    }
-
-    public void SetData(ChunkData chunkData)
-    {
-        ChunkData = chunkData;
-    }
 
     private void Start()
     {
@@ -33,6 +24,8 @@ public class ChunkDisplay : MonoBehaviour
                 for (int z = 0; z < ChunkData.ChunkSize.z; z++)
                 {
                     Vector3Int localPosition = new Vector3Int(x, y, z);
+
+                    int index = CubesGridMetrics.CalculateIndex(x, y, z, ChunkData.ChunkSize.x + 1, ChunkData.ChunkSize.y + 1);
 
                     //float[] cubeValues = new float[8]
                     //{

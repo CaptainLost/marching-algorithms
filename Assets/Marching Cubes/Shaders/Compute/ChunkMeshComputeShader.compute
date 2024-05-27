@@ -1,11 +1,23 @@
 #pragma kernel CSMain
 
-RWStructuredBuffer<float> Weights;
+struct ChunkMeshTriangle
+{
+    float3 A, B, C;
+};
+
+RWStructuredBuffer<float> WeightData;
+AppendStructuredBuffer<ChunkMeshTriangle> TriangleData;
 
 int3 ChunkSize;
 
 [numthreads(8, 8, 8)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-
+    ChunkMeshTriangle tri;
+    
+    tri.A = int3(1, 2, 3);
+    tri.B = int3(4, 5, 6);
+    tri.C = int3(7, 8, 9);
+    
+    TriangleData.Append(tri);
 }

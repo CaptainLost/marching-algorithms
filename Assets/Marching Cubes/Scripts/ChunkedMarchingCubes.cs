@@ -65,6 +65,20 @@ public class ChunkData
         NoiseWeights = weights;
     }
 
+    public bool IsLocalCellValid(int indexX, int indexY, int indexZ)
+    {
+        if (indexX >= ChunkSize.x)
+            return false;
+
+        if (indexY >= ChunkSize.y)
+            return false;
+
+        if (indexZ >= ChunkSize.z)
+            return false;
+
+        return true;
+    }
+
     public float GetLocalWeight(int indexX, int indexY, int indexZ)
     {
         int weightIndex = CubesGridMetrics.CalculateIndex(indexX, indexY, indexZ, ChunkSize.x, ChunkSize.y);
@@ -104,7 +118,7 @@ public class ChunkStorage
         m_noiseGenerator = noiseGenerator;
     }
 
-    public bool AddChunk(Vector3Int chunkIndex)
+    public bool CreateChunk(Vector3Int chunkIndex)
     {
         if (m_chunksData.ContainsKey(chunkIndex))
             return false;
@@ -167,12 +181,12 @@ public class ChunkStorage
 
         if (!m_chunksData.TryGetValue(owningChunkIndex, out ChunkData owningChunk))
         {
-            weight = 0f;
+            weight = -1f;
 
             return false;
         }
 
-        // Local space
+        // Convert to local space
         worldCellPosition -= owningChunkIndex * m_chunkSize;
 
         int weightIndex = CubesGridMetrics.CalculateIndex(worldCellPosition, m_chunkSize.x, m_chunkSize.y);
@@ -212,7 +226,7 @@ public class ChunkedMarchingCubes : IMarchingCubes, IInitializable
                 {
                     Vector3Int chunkPosition = new Vector3Int(x, y, z);
 
-                    ChunkStorage.AddChunk(chunkPosition);
+                    ChunkStorage.CreateChunk(chunkPosition);
                 }
             }
         }
